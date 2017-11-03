@@ -1,0 +1,347 @@
+---
+swagger: "2.0"
+info:
+  description: "Stripe Charge API"
+  version: "1.0.0"
+  title: "Stripe Charge API"
+  contact:
+    email: "support@scoon.me"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "api.stripe.com"
+basePath: "/v1/charges"
+schemes:
+- "https"
+consumes:
+- "application/json"
+- "application/x-www-form-urlencoded"
+produces:
+- "application/json"
+paths:
+  /charges:
+    post:
+      summary: "creates new charge resource"
+      description: "Sends request to create a new charge resource"
+      operationId: "createCharge"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "Access-Control-Allow-Origin"
+        in: "header"
+        description: "Header to enable CORS requests"
+        required: true
+        type: "string"
+      - name: "Access-Control-Allow-Headers"
+        in: "header"
+        description: "Comma De-limited List of allowed headers"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "payload"
+        description: "The request payload"
+        required: true
+        schema:
+          $ref: "#/definitions/ChargeRequest"
+      responses:
+        200:
+          description: "item created"
+          schema:
+            $ref: "#/definitions/Charge"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/Error"
+        402:
+          description: "Request Failed"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/Error"
+        409:
+          description: "Conflict"
+          schema:
+            $ref: "#/definitions/Error"
+        429:
+          description: "Too Many Requests"
+          schema:
+            $ref: "#/definitions/Error"
+        502:
+          description: "Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+        503:
+          description: "Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+        504:
+          description: "Server Error"
+          schema:
+            $ref: "#/definitions/Error"
+      security:
+      - basicAuth: []
+securityDefinitions:
+  basicAuth:
+    description: "HTTP Basic Authentication. Works over `HTTP` and `HTTPS`"
+    type: "basic"
+definitions:
+  Error:
+    required:
+    - "type"
+    properties:
+      type:
+        type: "string"
+        description: "The type of error returned. Can be api_connection_error, api_error,\
+          \ authentication_error, card_error, invalid_request_error, or rate_limit_error."
+      message:
+        type: "string"
+        description: "A human-readable message providing more details about the error.\
+          \ For card errors, these messages can be shown to your users."
+      code:
+        type: "string"
+        description: "For card errors, a short string from amongst those listed on\
+          \ the right describing the kind of card error that occurred."
+      param:
+        type: "string"
+        description: "The parameter the error relates to if the error is parameter-specific.\
+          \ You can use this to display a message near the correct form field, for\
+          \ example."
+    title: "error"
+  ChargeRequest:
+    required:
+    - "amount"
+    - "application_fee"
+    - "currency"
+    - "destination"
+    properties:
+      amount:
+        type: "integer"
+        format: "int32"
+        description: "The amount of money requested"
+        minimum: 0
+        maximum: 10000
+      application_fee:
+        type: "integer"
+        format: "int32"
+        description: "any fee for payment processing"
+        minimum: 0
+        maximum: 2000
+      currency:
+        type: "string"
+        description: "ISO code for supported currency"
+      destination:
+        type: "string"
+        description: "Where the money goes, we want this to be a Stripe Connect ID"
+      capture:
+        type: "boolean"
+        description: "Whether or not to immediately capture the charge. When false,\
+          \ the charge issues an authorization (or pre-authorization), and will need\
+          \ to be captured later. Uncaptured charges expire in 7 days. For more information,\
+          \ see authorizing charges and settling later."
+      metadata:
+        type: "object"
+        description: "A set of key/value pairs that you can attach to a charge object.\
+          \ It can be useful for storing additional information about the customer\
+          \ in a structured format. It's often a good idea to store an email address\
+          \ in metadata for tracking later."
+        properties: {}
+      receipt_email:
+        type: "boolean"
+        description: "The email address to send this charge's receipt to. The receipt\
+          \ will not be sent until the charge is paid. If this charge is for a customer,\
+          \ the email address specified here will override the customer's email address.\
+          \ Receipts will not be sent for test mode charges. If receipt_email is specified\
+          \ for a charge in live mode, a receipt will be sent regardless of your email\
+          \ settings."
+      customer:
+        type: "string"
+        description: "The ID of an existing customer that will be charged in this\
+          \ request."
+      source:
+        type: "string"
+        description: "A payment source to be charged, such as a credit card. If you\
+          \ also pass a customer ID, the source must be the ID of a source belonging\
+          \ to the customer. Otherwise, if you do not pass a customer ID, the source\
+          \ you provide must either be a token, like the ones returned by Stripe.js,\
+          \ or a dictionary containing a user's credit card details, with the options\
+          \ described below. Although not all information is required, the extra info\
+          \ helps prevent fraud."
+      statement_descriptor:
+        type: "boolean"
+        description: "An arbitrary string to be displayed on your customer's credit\
+          \ card statement. This may be up to 22 characters. As an example, if your\
+          \ website is RunClub and the item you're charging for is a race ticket,\
+          \ you may want to specify a statement_descriptor of RunClub 5K race ticket.\
+          \ The statement description may not include <>\"' characters, and will appear\
+          \ on your customer's statement in capital letters. Non-ASCII characters\
+          \ are automatically stripped. While most banks display this information\
+          \ consistently, some may display it incorrectly or not at all."
+    title: "charge_request"
+  Charge:
+    required:
+    - "amount"
+    - "application_fee"
+    - "currency"
+    - "destination"
+    properties:
+      id:
+        type: "string"
+        description: "newly created transfer ID"
+      object:
+        type: "string"
+        description: "the object type relative to Stripe API"
+      amount:
+        type: "integer"
+        format: "int32"
+        description: "Total amount of cents to be transferred"
+      amount_refunded:
+        type: "integer"
+        format: "int32"
+        description: "Amount in cents that are refunded from the charge, if any"
+      application_fee:
+        type: "string"
+        description: "The fee for all charges done on the platform"
+      balance_transaction:
+        type: "string"
+        description: "Balance transaction that describes the impact of this transfer\
+          \ on your account balance"
+      captured:
+        type: "boolean"
+        description: "If the charge was created without capturing, this represents\
+          \ the capture status of said charge"
+      created:
+        type: "string"
+        format: "dateTime"
+        description: "Timestamp of creation time"
+      currency:
+        type: "string"
+        description: "3 character ISO code for Currency"
+      date:
+        type: "string"
+        format: "dateTime"
+        description: "Expected date the transfer is projected to make it to the bank"
+      description:
+        type: "string"
+        description: "ID of the bank account, card, or Stripe account the transfer\
+          \ was sent to"
+      destination:
+        type: "object"
+        description: "The account (if any) the charge was made on behalf of, with\
+          \ an automatic transfer"
+        properties: {}
+      dispute:
+        type: "string"
+        description: "Details about the dispute if the charge has been disputed"
+      failure_code:
+        type: "string"
+        description: "Error code explaining reason for the transfer failure, if available"
+      failure_message:
+        type: "string"
+        description: "Message to user further explaining reason for transfer failure\
+          \ if available"
+      fraud_details:
+        type: "object"
+        description: "Hash with information on fraud assessments for the charge. Assessments\
+          \ reported by you have the key user_report and, if set, possible values\
+          \ of safe and fraudulent. Assessments from Stripe have the key stripe_report\
+          \ and, if set, the value fraudulent."
+        properties: {}
+      invoice:
+        type: "string"
+        description: "ID of the invoice this charge is for if one exists."
+      livemode:
+        type: "boolean"
+        description: "flag for signifying whether the transfer was live or a test"
+      metadata:
+        type: "string"
+        description: "key/value pairs to attach to a transfer resource"
+      method:
+        type: "string"
+        description: "The method used to send this transfer, which can be standard\
+          \ or instant. instant is only supported for transfers to debit cards. (See\
+          \ Instant payouts for marketplaces for more information.)"
+      on_behalf_of:
+        type: "string"
+        description: "The account (if any) the charge was made on behalf of without\
+          \ triggering an automatic transfer. See the Connect documentation for details."
+      order:
+        type: "string"
+        description: "ID of the order this charge is for if one exists."
+      outcome:
+        type: "object"
+        description: "Details about whether or not the payment was accepted, and why.\
+          \ See understanding declines for details."
+        properties: {}
+      paid:
+        type: "boolean"
+        description: "true if the charge succeeded, or was successfully authorized\
+          \ for later capture."
+      receipt_email:
+        type: "string"
+        description: "This is the email address that the receipt for this charge was\
+          \ sent to."
+      receipt_number:
+        type: "string"
+        description: "This is the transaction number that appears on email receipts\
+          \ sent for this charge."
+      refunded:
+        type: "boolean"
+        description: "Whether or not the charge has been fully refunded. If the charge\
+          \ is only partially refunded, this attribute will still be false."
+      refunds:
+        type: "array"
+        description: "A list of refunds that have been applied to the charge."
+        items:
+          type: "string"
+      review:
+        type: "string"
+        description: "ID of the review associated with this charge if one exists."
+      source:
+        type: "object"
+        description: "For most Stripe users, the source of every charge is a credit\
+          \ or debit card. This hash is then the card object describing that card."
+        properties: {}
+      source_transfer:
+        type: "string"
+        description: "The transfer ID which created this charge. Only present if the\
+          \ charge came from another Stripe account. See the Connect documentation\
+          \ for details."
+      statement_descriptor:
+        type: "string"
+        description: "Extra information about a transfer to be displayed on the user’\
+          s bank statement."
+      status:
+        type: "string"
+        description: "Current status of the transfer (paid, pending, in_transit, canceled\
+          \ or failed). A transfer will be pending until it is submitted to the bank,\
+          \ at which point it becomes in_transit. It will then change to paid if the\
+          \ transaction goes through. If it does not go through successfully, its\
+          \ status will change to failed or canceled."
+      transfer:
+        type: "string"
+        description: "ID of the transfer to the destination account (only applicable\
+          \ if the charge was created using the destination parameter)."
+      transfer_group:
+        type: "string"
+        description: "A string that identifies this transaction as part of a group.\
+          \ See the Connect documentation for details."
+    title: "charge"
+parameters:
+  Access-Control-Allow-Origin:
+    name: "Access-Control-Allow-Origin"
+    in: "header"
+    description: "Header to enable CORS requests"
+    required: true
+    type: "string"
+  Access-Control-Allow-Headers:
+    name: "Access-Control-Allow-Headers"
+    in: "header"
+    description: "Comma De-limited List of allowed headers"
+    required: true
+    type: "string"
