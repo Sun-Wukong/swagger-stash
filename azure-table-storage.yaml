@@ -1,0 +1,120 @@
+swagger: '2.0'
+info:
+  description: Azure Storage Table Entity API
+  version: 1.0.0
+  title: Azure Table Storage Table API
+  # put the contact info for your development or API team
+  contact:
+    email: support@scoon.me
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+host: njitwsmart.table.core.windows.net
+# all paths will be relative to the basePath specified
+basePath: /
+
+schemes:
+  - https
+  - http
+
+securityDefinitions:
+  BearerKey:
+    name: Authorization
+    type: apiKey
+    in: header
+
+security:
+  - BearerKey: []
+
+consumes:
+  - application/json
+
+produces:
+  - application/json
+definitions:
+  Payload:
+    title: payload
+    properties:
+      container:
+        type: object
+        description: The collection of messages from the moisture data stream
+parameters:
+  Payload:
+    name: payload
+    in: body
+    description: The contents of the OData Entity you want to insert
+    schema:
+      $ref: '#/definitions/Payload'
+    required: true
+  Date:
+    name: Date
+    in: header
+    type: string
+    format: date-time
+    description: Specifices the Coordinated Universal Time(UTC)
+    required: true
+  X-MS-Version:
+    name: x-ms-version
+    in: header
+    type: string
+    description: The version of the operation to use for this request See https://docs.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services for details
+    required: false
+  Content-Type:
+    name: Content-Type
+    in: header
+    type: string
+    description: The MIME type to represent the API Call response
+    required: true
+  Content-Length:
+    name: Content-Length
+    in: header
+    description: The Length of your request body
+    type: integer
+    required: true
+  Accept:
+    name: Accept
+    in: header
+    type: string
+    description: The specific MIME types to accept from a response
+    required: true
+paths:
+  /{tableName}:
+    post:
+      parameters:
+        - name: tableName
+          description: The name of your target Storage Table
+          in: path
+          type: string
+          required: true
+        - $ref: '#/parameters/Payload'
+        - $ref: '#/parameters/Date'
+        - $ref: '#/parameters/X-MS-Version'
+        - $ref: '#/parameters/Content-Type'
+        - $ref: '#/parameters/Content-Length'
+        - $ref: '#/parameters/Accept'
+      responses:
+        201:
+          description: Created
+          schema:
+            type: array
+            items:
+              type: object
+        204:
+          description: No content
+          headers:
+            X-MS-Request-Id:
+              type: string
+            X-MS-Version:
+              type: string
+            Date:
+              type: string
+              format: date-time
+            ETag:
+              type: string
+            Preference-Applied:
+              type: string
+            Content-Type:
+              type: string
+x-azure-api-id: 'sh-1510987879058'

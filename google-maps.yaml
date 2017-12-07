@@ -1,0 +1,642 @@
+swagger: '2.0'
+info:
+  description: Google Maps API Specification Wrapper
+  version: 1.0.0
+  title: Google Maps API
+  # put the contact info for your development or API team
+  contact:
+    email: support@scoon.me
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+# host: maps.googleapis.com
+# all paths will be relative to the basePath specified
+# basePath: /maps/api
+
+schemes:
+  - https
+
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: 'Authorization: Bearer '
+    in: header
+  apiKey:
+    type: apiKey
+    name: key
+    in: query
+
+consumes:
+- application/json
+- application/x-www-form-urlencoded
+
+produces:
+- application/json
+- application/xml
+
+security:
+  - apiKey: []
+    Bearer: []
+
+# Global Header parameters will be here
+parameters:
+  Access-Control-Allow-Origin:
+    name: Access-Control-Allow-Origin
+    description: Header to enable CORS requests
+    in: header
+    type: string
+    required: false
+  Access-Control-Allow-Headers:
+    name: Access-Control-Allow-Headers
+    in: header
+    description: Comma De-limited List of allowed headers
+    type: string
+    required: false
+  Address:
+    name: address
+    in: query
+    description: The street address that we would like to Geocode. Needs to be in the native land's postal format
+    type: string
+    required: true
+  Components:
+    name: components
+    in: query
+    description: The filter values we want from the Geocoder
+    type: string
+    required: false
+  Key:
+    name: key
+    in: query
+    description: The API Key for our web app
+    type: string
+    required: true
+  Bounds:
+    name: bounds
+    in: query
+    description: Bounding box of our map viewport to bias geocoder results
+    type: string
+    required: false
+  Callback:
+    name: callback
+    in: query
+    description: Callback function signature to be used to load the map
+    type: string
+    required: true
+  Output:
+    name: output
+    description: The format that response data is delivered. Either json or xml
+    in: query
+    type: string
+    required: true
+  Origin:
+    name: origin
+    description: The starting point of your trip
+    in: query
+    type: string
+    required: true
+  Destination:
+    name: destination
+    description: The intended location to travel to
+    in: query
+    type: string
+    required: true
+  TravelMode:
+    name: mode
+    description: The preferred method of transportation when calculating directions
+    in: query
+    type: string
+    required: true
+  TransitMode:
+    name: transit_mode
+    description: Specified preferred modes of transit. Only for transit direction requests
+    in: query
+    type: array
+    items:
+      type: string
+    required: false
+  TransitRoutingPreference:
+    name: transit_routing_preference
+    description: Transit route preferences. Biases returned options, not optimal by default
+    in: query
+    type: array
+    items:
+      type: string
+    required: false
+  UnitSystem:
+    name: units
+    description: Unit system used when showing results
+    in: query
+    type: string
+    required: true
+  Waypoints:
+    name: waypoints
+    description: An array of Waypoints
+    in: query
+    type: array
+    items:
+      type: string
+    required: false
+  OptimizeWaypoints:
+    name: optimizeWaypoints
+    description: Flag for indicating Wapoint optimaization
+    in: query
+    type: boolean
+    required: false
+  Alternatives:
+    name: alternatives
+    description: Flag for indicating the desire for multiple route alternatives
+    in: query
+    type: boolean
+    required: false
+  Avoid:
+    name: avoid
+    description: Collection of route features that should be avoided
+    in: query
+    type: array
+    items: 
+     type: string
+    required: false
+  Language:
+    name: language
+    in: query
+    description: The language to return results
+    type: string
+    required: false
+  Region:
+    name: region
+    in: query
+    description: The region code in ccTLD format
+    type: string
+    required: true
+  ArrivalTime:
+    name: arrival_time
+    in: query
+    description: Specifies the desired time of arrival for transit directions
+    type: integer
+    required: false
+  DepartureTime:
+    name: departure_time
+    in: query
+    description: Specifies the desired time of departure for transit
+    type: integer
+    required: false
+  TrafficModel:
+    name: traffic_model
+    in: query
+    description: Assumptions to use when calculating travel time, while in traffic
+    type: string
+    required: false
+  
+definitions:
+  DirectionResponse:
+    title: directionresults
+    properties:
+      status:
+        type: string
+        description: Message communicating the state of a given request
+      geocoded_waypoints:
+        type: array
+        items:
+          type: object
+        description: Array containing geocoding for start, destination, and waypoints of a trip
+      routes:
+        type: array
+        items:
+          type: object
+        description: Array of routes from origin to destination
+      available_travel_modes:
+        type: array
+        items:
+          type: object
+        description: A collection of available travel modes. An alternative to a requested mode
+  GeocodedWaypoint:
+    title: geocoded_waypoint
+    properties:
+      geocoder_status:
+        type: string
+        description: Status code from the requested geocoding operation
+      partial_match:
+        type: array
+        items:
+          type: object
+        description: A collection of alternative suggestions for an incomplete match query
+      place_id:
+        type: string
+        description: An unique identifier that may be used with other Google APIs
+      types:
+        type: string
+        description: The resulting geocoding address type
+  Route:
+    title: route
+    properties:
+      summary:
+        type: string
+        description: Brief text description for the route, as to disambiguate it from alternatives
+      legs:
+        type: array
+        items:
+          type: object
+
+        description: Collection of legs within a given route. Legs are present as per waypoints / destination specified
+      waypoint_order:
+        type: array
+        items:
+          type: object
+        description: A collection of ordered waypoints within the calculated route. May be open to optimization
+      overview_polyline:
+        type: object
+        description: Holds a "points" object, which is an encoded polyline representation of a route
+      bounds:
+        type: object
+        description: Holds the viewport bounding box of the overview_plyline
+      copyrights: 
+        type: string
+        description: The copyright text for the given route. Data is handled by app clients
+      warnings:
+        type: array
+        items:
+          type: string
+        description: A collection of warnings, associated with given directions
+      fare:
+        type: object
+        description: Represents the total fare costs on a given route 
+  Fare: 
+    title: fare
+    properties:
+      currency:
+        type: string
+        description: An ISO 4217 currency code, signifying what currency we are dealing with
+      value:
+        type: string
+        description: The total fare amount in the specified currency
+      text:
+        type: string
+        description: The total fare amount, formatted in the  language
+  Leg:
+    title: leg
+    properties:
+      steps:
+        type: array
+        items:
+          type: object
+        description: An array of ps denoting information about each separate step of a given leg
+      distance:
+        type: object
+        description: Indicates the total distance covered by a given leg
+      duration:
+        type: object
+        description: The amount of time to cover a given leg of a trip
+      duration_in_traffic:
+        type: object
+        description: The amount of time estimated to complete a leg of the trip. Based on traveler history.
+      departure_time:
+        type: object
+        description: Estimated departure time of a transportation provider. Only works for transit directions
+      start_location:
+        type: string
+        description: The longitudinal coordinates of the current leg of the trip
+      end_location:
+        type: string
+        description: The longituinal coordinates of the given destination of a Leg
+      start_address:
+        type: string
+        description: A human readable version of the origin's address
+      end_address: 
+        type: string
+        description: A human readable version of the Leg's destination
+  Step:
+    title: step
+    properties:
+      html_instructions:
+        type: string
+        description: Formatted instructions for a given step
+      distance:
+        type: string
+        description: Distance between current and next step
+      duration:
+        type: string
+        description: The typical time to perform a given step, until the next step
+      start_location:
+        type: object
+        description: The location of the step's origin, as a lat/long pair
+      end_location:
+        type: string
+        description: The location of the last point within a set, as a lat/long pair
+      polyline: 
+        type: array
+        description: a collection of points that are a smoothed path of a given step
+        items:
+          type: object
+      steps:
+        type: array
+        items:
+          type: object
+        description: Detailed walking / driving directions
+  TransitDetails:
+    title: transit_details
+    properties:
+      arrival_stop:
+        type: object
+        description: Object containing the name and longitudinal coords. of a given stop
+      departure_stop:
+        type: object
+        description: Object containing the name and coordinate data of a destination
+      arrival_time:
+        type: object
+        description: Object containing the arrival time to the destination
+      departure_time:
+        type: object
+        description: Object containing the departure time from the origin
+      headsign:
+        type: string
+        description: Specific direction to travel along within a route line
+      headway:
+        type: integer
+        description: Specific number of seconds between departures, at a given transi station
+      num_stops:
+        type: integer
+        description: Number of stops in a given step, including the arrival stop
+      agencies:
+        type: array
+        items:
+          type: object
+        description: An array, holding an Object containing information on the line's operator
+      url:
+        type: string
+        description: THe URL for the transit line, provided by the transit agency
+      icon:
+        type: string
+        description: The URL for the icon related to a given line
+  Line:
+    title: agencies
+    properties:
+      name:  
+        type: string
+        description: THe full name of the transit line
+      short_name:
+        type: string
+        description: The short name of the transit line
+      color:
+        type: string
+        description: The Hex color code for transit line signage
+      agencies:
+        type: array
+        description: Array containing a TransitAgency object
+        items:
+          type: object
+      url:
+        type: string
+        description: The URL for the given transit line
+      icon:
+        type: string
+        description: The URL for the transit line's icon
+      text_color:
+        type: string
+        description: The Hex color code for the transit signage text
+      vehicle:
+        type: object
+        description: The type of vehicle used on this transit line
+  TransitAgency:
+    title: TransitAgency
+    properties:
+      name:
+        type: string
+        description: The name of the transit agency
+      phone:
+        type: string
+        description: The phone number of the transit agency
+      url:
+        type: string
+        description: The URL of the transit agency's website
+  Vehicle:
+    title: vehicle
+    properties:
+      name:
+        type: string
+        description: The name of the vehicle on a transit line
+      type:
+        type: string
+        description: Type of vehicle that runs along the lines of a route.
+      icon:
+        type: string
+        description: URL for a vehicle's icon
+      local_icon:
+        type: string
+        description: URL for another vehicle's icon, relative to the local filesystem
+  GeocodeResponse:
+    title: geocode_response
+    properties:
+      results:
+        type: array
+        items:
+          type: object
+        description: List of values encapsulated in your response
+      status:
+        type: string
+        description: The human translation of your HTTP Response Status
+      error_message:
+        type: string
+        description: An additional message attached to Non 2XX responses
+  Geometry:
+    title: geometry
+    properties:
+      location:
+        type: array
+        items:
+          type: object
+        description: The geocoded lat/lon value of a given address
+      location_type:
+        type: string
+        description: Stores additional data of a specific location
+      viewport:
+        type: array
+        items:
+          type: object
+        description: Contains a recommended viewport for displaying the results; as a pair of lat/lon values
+      bounds:
+        type: array
+        items:
+          type: object
+        description: Stores a bounding box with fully contains our result
+  AddressComponents:
+    title: address_components
+    properties:
+      types:
+        type: array
+        description: an array indicating the type of the address component
+        items:
+         type: string
+      long_name:
+        type: string
+        description: is the full text description or name of the address component as returned by the Geocoder.
+      short_name:
+        type: string
+        description:  is an abbreviated textual name for the address component, if available. For example, an address component for the state of Alaska may have a long_name of "Alaska" and a short_name of "AK" using the 2-letter postal abbreviation.
+  GeocodeResult:
+    title: results
+    properties:
+      types:
+        type: array
+        description: An array containing feature tags for a location
+        items:
+          type: string
+      formatted_address:
+        type: string
+        description: A human readable version of the location's address
+      address_components:
+        type: array
+        description: an array containing the separate components applicable to this address.
+        items:
+          type: object
+      postcode_localities:
+        type: array
+        description: an array containing the separate components applicable to this address.
+        items:
+          type: string
+      geometry:
+        type: object
+        description: Contains location and visual data for a given result
+  Error:
+    title: error
+    required:
+    - type
+    properties:
+      type:
+        type: string
+        description: The type of error returned. Can be api_connection_error, api_error, authentication_error, card_error, invalid_request_error, or rate_limit_error.
+      message:
+        type: string
+        description: A human-readable message providing more details about the error. For card errors, these messages can be shown to your users.
+      code:
+        type: string
+        description: For card errors, a short string from amongst those listed on the right describing the kind of card error that occurred.
+      param:
+        type: string
+        description: The parameter the error relates to if the error is parameter-specific. You can use this to display a message near the correct form field, for example.
+paths:
+  /js:
+    parameters:
+    - $ref: "#/parameters/Output"
+    - $ref: "#/parameters/Callback"
+    - $ref: '#/parameters/Key'
+    get:
+      summary: Load map
+      operationId: initMap
+      description: Requests a fresh google map
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        200:
+          $ref: '#/responses/JsResponse'
+  /geocode:
+    parameters:
+    - $ref: '#/parameters/Key'
+    - $ref: '#/parameters/Address'
+    - $ref: '#/parameters/Bounds'
+    - $ref: '#/parameters/Language'
+    - $ref: '#/parameters/Region'
+    - $ref: '#/parameters/Components'
+    get:
+      summary: Geocode a given address
+      operationId: GeocodeAddr
+      description: Retrieve lat/long coordinates from a given postal address
+      produces:
+        - application/xml
+        - application/json
+      responses:
+        200:
+          $ref: '#/responses/GeocodeResponse'
+        400:
+          $ref: '#/responses/400'
+        401:
+          $ref: '#/responses/401'
+        429:
+          $ref: '#/responses/429'
+        502:
+          $ref: '#/responses/502'
+  /directions:
+    parameters:
+    - $ref: '#/parameters/Origin'
+    - $ref: '#/parameters/Destination'
+    - $ref: '#/parameters/Key'
+    - $ref: '#/parameters/TravelMode'
+    - $ref: '#/parameters/Waypoints'
+    - $ref: '#/parameters/Alternatives'
+    - $ref: '#/parameters/Language'
+    - $ref: '#/parameters/UnitSystem'
+    - $ref: '#/parameters/Region'
+    - $ref: '#/parameters/ArrivalTime'
+    - $ref: '#/parameters/DepartureTime'
+    - $ref: '#/parameters/TrafficModel'
+    - $ref: '#/parameters/TransitMode'
+    - $ref: '#/parameters/TransitRoutingPreference'    
+    get:
+      summary: Get directions to a given destination
+      description: Generates routes between a given origin location, and destination
+      produces:
+        - application/json
+      responses:
+        200:
+          $ref: '#/responses/DirectionResponse'
+        400:
+          $ref: '#/responses/400'
+        402:
+          $ref: '#/responses/402'
+        429:
+          $ref: '#/responses/429'
+        502:
+          $ref: '#/responses/502'
+
+
+responses:
+  DirectionResponse:
+    description: Response from a Directions API request
+    schema:
+      $ref: '#/definitions/DirectionResponse'
+  GeocodeResponse:
+    description: Response from a Geocoding request
+    schema:
+      $ref: '#/definitions/GeocodeResponse'
+  JsResponse:
+    description: OK
+    schema:
+      type: file
+  400:
+    description: Bad Request
+    schema:
+      $ref: '#/definitions/Error'
+  401:
+    description: Unauthorized
+    schema:
+      $ref: '#/definitions/Error'
+  402:
+    description: Request Failed
+    schema:
+      $ref: '#/definitions/Error'
+  404:
+    description: Not Found
+    schema:
+      $ref: '#/definitions/Error'
+  409:
+    description: Conflict
+    schema:
+      $ref: '#/definitions/Error'
+  429:
+    description: Too Many Requests
+    schema:
+      $ref: '#/definitions/Error'
+  502:
+    description: Server Error
+    schema:
+      $ref: '#/definitions/Error'
+  503:
+    description: Server Error
+    schema:
+      $ref: '#/definitions/Error'
+  504:
+    description: Server Error
+    schema:
+      $ref: '#/definitions/Error'

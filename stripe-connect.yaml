@@ -1,0 +1,205 @@
+---
+swagger: "2.0"
+info:
+  description: "This is an example of using OAuth2 Application Flow in a specification\
+    \ to describe security to your API."
+  version: "1.0.0"
+  title: "Stripe Connect Standalone OAuth2 Project"
+host: "connect.stripe.com"
+basePath: "/oauth"
+schemes:
+- "https"
+consumes:
+- "application/json"
+- "application/xml"
+- "application/x-www-form-urlencoded"
+produces:
+- "application/json"
+- "application/xml"
+security:
+- application:
+  - "read"
+  - "write"
+paths:
+  /authorize:
+    get:
+      summary: "Gets auth info"
+      description: "This is an example opeartion to show how security is applied to\
+        \ the call."
+      operationId: "getAuthInfo"
+      parameters:
+      - name: "Access-Control-Allow-Headers"
+        in: "header"
+        description: "Comma De-limited List of allowed headers"
+        required: true
+        type: "string"
+      - name: "Access-Control-Allow-Origin"
+        in: "header"
+        description: "Header to enable CORS requests"
+        required: true
+        type: "string"
+      - name: "response_type"
+        in: "query"
+        description: "Defaults to code"
+        required: true
+        type: "string"
+      - name: "client_id"
+        in: "query"
+        description: "The unique identifier provided to your application, found in\
+          \ your"
+        required: true
+        type: "string"
+      responses:
+        302:
+          description: "Found"
+          schema:
+            $ref: "#/definitions/authorizedResponse"
+      security:
+      - api-key: []
+  /token:
+    post:
+      summary: "Onboards users onto Stripe with an auth token!"
+      operationId: "getStripeToken"
+      parameters:
+      - name: "grant_type"
+        in: "query"
+        description: "authorization_code when turning an authorization code into an\
+          \ access token, or refresh_token when using a refresh token to get a new\
+          \ access token."
+        required: true
+        type: "string"
+      - name: "refresh_token"
+        in: "query"
+        description: "The value of the code or refresh_token, depending on the grant_type."
+        required: false
+        type: "string"
+      - name: "code"
+        in: "query"
+        description: "The value of the code or refresh_token, depending on the grant_type."
+        required: false
+        type: "string"
+      - name: "scope"
+        in: "query"
+        description: "When requesting a new access token from a refresh token, any\
+          \ scope that has an equal or lesser scope as the refresh token. Has no effect\
+          \ when requesting an access token from an authorization code. Defaults to\
+          \ the scope of the refresh token."
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/successTokenResponse"
+        400:
+          description: "Someone done goofed"
+          schema:
+            $ref: "#/definitions/errorResponse"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+      security:
+      - api-key: []
+  /deauthorize:
+    post:
+      summary: "User Deauthorization"
+      description: "This operation deauthorizes the most current user auth token"
+      operationId: "deauthorizeUser"
+      parameters:
+      - name: "client_id"
+        in: "query"
+        description: "The unique identifier provided to your application, found in\
+          \ your"
+        required: true
+        type: "string"
+      - name: "stripe_id"
+        in: "query"
+        description: "The account you'd like to disconnect from."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/account"
+        400:
+          description: "Something is wrong"
+          schema:
+            $ref: "#/definitions/errorResponse"
+      security:
+      - api-key: []
+securityDefinitions:
+  api-key:
+    type: "apiKey"
+    name: "client_secret"
+    in: "header"
+  application:
+    type: "oauth2"
+    tokenUrl: "https://connect.stripe.com/oauth/token"
+    flow: "application"
+    scopes:
+      write: "allows modifying resources"
+      read: "allows reading resources"
+definitions:
+  successTokenResponse:
+    required:
+    - "access_token"
+    properties:
+      access_token:
+        type: "string"
+      scope:
+        type: "string"
+      livemode:
+        type: "boolean"
+      token_type:
+        type: "string"
+      refresh_token:
+        type: "string"
+      stripe_user_id:
+        type: "string"
+      stripe_publishable_key:
+        type: "string"
+    title: "success_token"
+  errorResponse:
+    properties:
+      error:
+        type: "string"
+      errorDescription:
+        type: "string"
+    title: "error_response"
+  account:
+    type: "string"
+    title: "client_id"
+  authorizedResponse:
+    properties:
+      redirect_uri:
+        type: "string"
+      scope:
+        type: "string"
+      state:
+        type: "string"
+      code:
+        type: "string"
+    title: "auth_response"
+parameters:
+  client_id:
+    name: "client_id"
+    in: "query"
+    description: "The unique identifier provided to your application, found in your"
+    required: true
+    type: "string"
+  Access-Control-Allow-Origin:
+    name: "Access-Control-Allow-Origin"
+    in: "header"
+    description: "Header to enable CORS requests"
+    required: true
+    type: "string"
+  Access-Control-Allow-Headers:
+    name: "Access-Control-Allow-Headers"
+    in: "header"
+    description: "Comma De-limited List of allowed headers"
+    required: true
+    type: "string"
+x-azure-api-id: "sh-1486435933269"

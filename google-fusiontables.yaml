@@ -1,0 +1,132 @@
+swagger: '2.0'
+info:
+  description: Google Fusiontables API Wrapper
+  version: 1.0.0
+  title: Google Fusiontables API
+  # put the contact info for your development or API team
+  contact:
+    email: support@scoon.me
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+host: googleapis.com
+# all paths will be relative to the basePath specified
+basePath: /fusiontables/v2
+
+schemes:
+  - https
+
+securityDefinitions:
+  apiKey:
+    name: key
+    type: apiKey
+    in: query   
+  
+
+consumes:
+- application/json
+
+produces:
+- application/json
+
+# Global Header parameters will be here
+parameters:
+  SqlQuery:
+    name: sql
+    in: query
+    description: Comma De-limited List of allowed headers
+    required: true
+    type: string
+
+definitions:
+  SqlResponse:
+    title: sqlResponse
+    properties:
+      kind:
+        type: string
+        description: The type of API operation to perform
+      columns:
+        type: array
+        description: A collection of column values included within the query
+        items:
+          type: string
+      rows:
+        type: array
+        description: A collection of row values, as a set of arrays. Values are read left-right, according to table columns 
+        items:
+          type: array
+          items:
+            type: string
+  Error:
+    title: error
+    required:
+    - type
+    properties:
+      type:
+        type: string
+        description: The type of error returned. Can be api_connection_error, api_error, authentication_error, card_error, invalid_request_error, or rate_limit_error.
+      message:
+        type: string
+        description: A human-readable message providing more details about the error. For card errors, these messages can be shown to your users.
+      code:
+        type: string
+        description: For card errors, a short string from amongst those listed on the right describing the kind of card error that occurred.
+      param:
+        type: string
+        description: The parameter the error relates to if the error is parameter-specific. You can use this to display a message near the correct form field, for example.
+paths:
+  /query:
+    parameters:
+    - $ref: "#/parameters/SqlQuery"
+    get:
+      security:
+       - apiKey: []
+      summary: Sends new SQL query to process
+      operationId: newSqlQuery
+      description: Sends request to create a new charge resource
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Query Successful
+          schema:
+            $ref: "#/definitions/SqlResponse"
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        402:
+          description: Request Failed
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Error'
+        409:
+          description: Conflict
+          schema:
+            $ref: '#/definitions/Error'
+        429:
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/Error'
+        502:
+          description: Server Error
+          schema:
+            $ref: '#/definitions/Error'
+        503:
+          description: Server Error
+          schema:
+            $ref: '#/definitions/Error'
+        504:
+          description: Server Error
+          schema:
+            $ref: '#/definitions/Error'
+x-azure-api-id: 'sh-1510453568274'

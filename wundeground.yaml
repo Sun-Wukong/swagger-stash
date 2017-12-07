@@ -1,0 +1,286 @@
+swagger: '2.0'
+info:
+  description: Wunderground Weather Conditions API
+  version: 1.0.0
+  title: Wunderground API
+  # put the contact info for your development or API team
+  contact:
+    email: support@scoon.me
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+host: api.wunderground.com
+# all paths will be relative to the basePath specified
+basePath: /api
+
+schemes:
+  - https
+
+securityDefinitions:
+  apiKey:
+    type: apiKey
+    name: key
+    description: API Key for NOAA, in case it needs to be in a query
+    in: query
+
+consumes:
+- application/json
+
+produces:
+- application/json
+- application/xml
+
+# Global Header parameters will be here
+parameters:
+  Access-Control-Allow-Origin:
+    name: Access-Control-Allow-Origin
+    description: Header to enable CORS requests
+    in: header
+    type: string
+    required: true
+  Access-Control-Allow-Credentials:
+    name: Access-Control-Allow-Credentials
+    in: header
+    description: Boolean Flag for accepting authentication credentials
+    required: true
+    type: boolean
+  Features:
+    name: features
+    in: path
+    type: string
+    description: a collection of features that one would like to retrieve
+    required: true
+  QueryZipcode:
+    name: queryZipcode
+    in: path
+    type: string
+    format: int32
+    required: true
+    description: The postal (aka Zip) code of the location you want to query
+  ResponseFormat:
+    name: resFormat
+    in: path
+    type: string
+    required: true
+    description: The MIME type / format that you would like your response to be
+definitions:
+  QueryResponse:
+    title: response
+    properties:
+      version:
+        type: string
+      termsOfService:
+        type: string
+        description: URL to Wunderground's ToS
+      features:
+        type: object
+        description: Object, contaning the desired data features
+  CurrentObservation:
+    title: current_observation
+    description: The collection of things observed within the Query
+    properties:
+      image:
+        type: object
+      display_location:
+        type: object
+      observation_location:
+        type: object
+      estimated:
+        type: object
+      station_id:
+        type: string
+      observation_time:
+        type: string
+      observation_time_rfc822:
+        type: string
+      observation_epoch:
+        type: string
+      local_time_rfc822:
+        type: string
+      local_epoch:
+        type: string
+      local_tz_short:
+        type: string
+      local_tz_long:
+        type: string
+      local_tz_offset:
+        type: string
+      weather:
+        type: string
+      temperature_string:
+        type: string
+      temp_f:
+        type: string
+      temp_c:
+        type: string
+      relative_humidity:
+        type: string
+      wind_string:
+        type: string
+      wind_dir:
+        type: string
+      wind_degrees:
+        type: string
+      wind_mph:
+        type: string
+      wind_gust_mph:
+        type: string
+      wind_kph:
+        type: string
+      wind_gust_kph:
+        type: string
+      pressure_mb:
+        type: string
+      presure_in:
+        type: string
+      pressure_trend:
+        type: string
+      dewpoint_string:
+        type: string
+      dewpoint_f:
+        type: string
+      dewpoint_c:
+        type: string
+      heat_index_string:
+        type: string
+      heat_index_f:
+        type: string
+      heat_index_c:
+        type: string
+      windchill_string:
+        type: string
+      windchill_f:
+        type: string
+      windchill_c:
+        type: string
+      feelslike_string:
+        type: string
+      feelslike_f:
+        type: string
+      feelslike_c:
+        type: string
+      visibility_mi:
+        type: string
+      visibility_km:
+        type: string
+      solarradiation:
+        type: string
+      UV:
+        type: string
+      precip_1hr_string:
+        type: string
+      precip_1hr_in:
+        type: string
+      precip_1hr_metric:
+        type: string
+      precip_today_string:
+        type: string
+      precip_today_in:
+        type: string
+      precip_today_metric:
+        type: string
+      icon:
+        type: string
+      icon_url:
+        type: string
+      forecast_url:
+        type: string
+      history_url:
+        type: string
+      ob_url:
+        type: string
+      nowcast:
+        type: string
+  Image:
+    title: image
+    properties:
+      url:
+        type: string
+      title:
+        type: string
+        description: The title of the image
+      link:
+        type: string
+        description: The URL for the image
+  DisplayLocation:
+    title: display_location
+    properties:
+      full:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      state_name:
+        type: string
+      country:
+        type: string
+      country_iso3166:
+        type: string
+      zip:
+        type: string
+      magic:
+        type: string
+      wmo:
+        type: string
+      latitude:
+        type: string
+      longitude:
+        type: string
+      elevation:
+        type: string
+  ObservationLocation:
+    title: observation_location
+    properties:
+      full:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      country:
+        type: string
+      country_iso3166:
+        type: string
+      latitude:
+        type: string
+      longitude:
+        type: string
+      elevation:
+        type: string
+  Error:
+    title: error
+    required:
+    - type
+    properties:
+      type:
+        type: string
+        description: The type of error returned. 
+      message: 
+        type: string
+        description: A human-readable message providing more details about the error. 
+responses:
+  200:
+    description: item created
+    schema:
+      $ref: "#/definitions/QueryResponse"
+      
+paths:
+  /{features}/q/{queryZipcode}.{resFormat}:
+    parameters:
+    - $ref: "#/parameters/Access-Control-Allow-Origin"
+    - $ref: "#/parameters/Access-Control-Allow-Credentials"
+    - $ref: "#/parameters/Features"
+    - $ref: "#/parameters/QueryZipcode"
+    - $ref: "#/parameters/ResponseFormat"
+    get:
+      security:
+       - apiKey: []
+      summary: Retrieves new Weather forcast data
+      operationId: getData
+      description: Queries weather stations for current conditions, by the hour
+      responses:
+        200:
+          $ref: "#/responses/200"

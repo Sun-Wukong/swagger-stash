@@ -1,0 +1,208 @@
+swagger: '2.0'
+info:
+  description: Odoo XML-RPC API Specification
+  version: 1.0.0
+  title: Odoo XML-RPC API
+  # put the contact info for your development or API team
+  contact:
+    email: support@scoon.me
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+host: odoo.sociosmith.com
+# all paths will be relative to the basePath specified
+basePath: /xmlrpc/2
+
+schemes:
+  - http
+  - https
+
+securityDefinitions:
+  basicAuth:
+    type: basic
+    description: HTTP Basic Authentication. Works over `HTTP` and `HTTPS`
+
+security:
+  - basicAuth: []
+
+# Declare consumed MIME Types here
+consumes:
+# RPC specific media subtypes
+- application/xml+rpc
+
+produces:
+- application/xml+rpc
+
+# Global Header parameters will be here
+parameters:
+  Access-Control-Allow-Origin:
+    name: Access-Control-Allow-Origin
+    description: Header to enable CORS requests
+    in: header
+    type: string
+    required: true
+  Access-Control-Allow-Headers:
+    name: Access-Control-Allow-Headers
+    in: header
+    description: Comma De-limited List of allowed headers
+    required: true
+    type: string
+paths:
+  /object:
+    parameters:
+    - in: body
+      name: args
+      schema:
+        $ref: '#/definitions/RPCMethod'
+    post:
+      operationId: execute_kw
+      summary: Invoke methods of specified Odoo data models
+      responses:
+        200:
+          $ref: '#/responses/200'
+        401:
+          $ref: '#/responses/401'
+        402:
+          $ref: '#/responses/402'
+        429:
+          $ref: '#/responses/429'
+        502:
+          $ref: '#/responses/502'
+        504:
+          $ref: '#/responses/504'
+
+  /common/authenticate:
+    parameters:
+    - in: body
+      name: kwargs
+      schema:
+        $ref: '#/definitions/RPCAuthMethod'
+    post:
+      operationId: authenticate
+      summary: Perform basic Authentication for Odoo RPC
+      responses:
+        200:
+          $ref: '#/responses/200'
+        401:
+          $ref: '#/responses/401'
+        402:
+          $ref: '#/responses/402'
+        429:
+          $ref: '#/responses/429'
+        502:
+          $ref: '#/responses/502'
+        504:
+          $ref: '#/responses/504'
+          
+definitions:
+  RPCAuthMethod:
+    title: rpcAuthMethod
+    description: parameters to authenticate against with Odoo
+    required:
+      - username
+      - password
+      - database
+    properties:
+      database:
+        type: string
+        description: The intended Odoo database to connect to
+      username:
+        type: string
+        description: The username to log into Odoo with
+      password:
+        type: string
+        description: The password for the given Odoo username
+  RPCMethod:
+    title: rpcMethod
+    description: The parameters to be sent to Odoo's XML-RPC service
+    required:
+      - database
+      - userId
+      - password
+      - modelName
+      - methodName
+    properties:
+      database:
+        type: string
+        description: Database name to connect our client to
+      userId:
+        type: string
+        description: User ID from the Odoo ERP
+      password:
+        type: string
+        description: Password for the authorized Odoo RPC user
+      modelName:
+        type: string
+        description: The data Model you're accessing
+      methodName:
+        type: string
+        description: The method signature of the data model we are invoking
+      argsList:
+        type: array
+        description: A collection of arguments for methodName; they are parsed, according to position
+        items:
+          type: string
+      argsDict:
+        type: object
+        description: A dictionary / map of arguments, named according to the arg fields of methodName
+  Error:
+    title: error
+    required:
+    - type
+    properties:
+      type:
+        type: string
+        description: The type of error returned. Can be api_connection_error, api_error, authentication_error, card_error, invalid_request_error, or rate_limit_error.
+      message:
+        type: string
+        description: A human-readable message providing more details about the error. For card errors, these messages can be shown to your users.
+      code:
+        type: string
+        description: For card errors, a short string from amongst those listed on the right describing the kind of card error that occurred.
+      param:
+        type: string
+        description: The parameter the error relates to if the error is parameter-specific. You can use this to display a message near the correct form field, for example. 
+responses:
+  200:
+    description: OK
+    schema:
+      type: string
+      format: int32
+  400:
+    description: Bad Request
+    schema:
+      $ref: '#/definitions/Error'
+  401:
+    description: Unauthorized
+    schema:
+      $ref: '#/definitions/Error'
+  402:
+    description: Request Failed
+    schema:
+      $ref: '#/definitions/Error'
+  404:
+    description: Not Found
+    schema:
+      $ref: '#/definitions/Error'
+  409:
+    description: Conflict
+    schema:
+      $ref: '#/definitions/Error'
+  429:
+    description: Too Many Requests
+    schema:
+      $ref: '#/definitions/Error'
+  502:
+    description: Server Error
+    schema:
+      $ref: '#/definitions/Error'
+  503:
+    description: Server Error
+    schema:
+      $ref: '#/definitions/Error'
+  504:
+    description: Server Error
+    schema:
+      $ref: '#/definitions/Error'

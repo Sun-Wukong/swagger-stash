@@ -1,0 +1,168 @@
+swagger: '2.0'
+info:
+  description: Google Sheets API Wrapper
+  version: 1.0.0
+  title: Google Sheets API
+  # put the contact info for your development or API team
+  contact:
+    email: support@sociosmith.com
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+host: googleapis.com
+# all paths will be relative to the basePath specified
+basePath: /sheets/v4
+
+schemes:
+  - https
+
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+  apiKey:
+    type: apiKey
+    name: key
+    in: query
+
+security:
+  - apiKey: []
+    Bearer: []
+
+consumes:
+- application/json
+
+produces:
+- application/json
+
+definitions:
+  BatchUpdate:
+    title: batchRequest
+    description: A collection of updates to execute on a given Google sheet
+    properties:
+      requests:
+        type: array
+        description: A list of updates to apply to the spreadsheet. Requests will be applied in the order they are specified. If any request is not valid, no requests will be applied.
+        items:
+          type: object
+      boolean:
+        type: boolean
+        description: Determines if the update response should include the spreadsheet resource.
+      responseRanges:
+        type: array
+        description: Limits the ranges included in the response spreadsheet. Meaningful only if [include_spreadsheet_response][] is 'true'.
+        items:
+          type: string
+      responseIncludeGridData:
+        type: boolean
+        description: True if grid data should be returned. Meaningful only if if [include_spreadsheet_response][] is 'true'. This parameter is ignored if a field mask was set in the request.
+    required:
+      - requests
+      - boolean
+      - responseRanges
+      - responseIncludeGridData
+  RequestObject:
+    title: request
+    description: A generic object, representing a valid request kind
+    properties: 
+      kind:
+        type: object
+  BatchUpdateResponse:
+    title: batchResponse
+    description: Data object containing results of the attempted update
+    properties:
+      spreadsheetId:
+        type: string
+        description: The spreadsheet the updates was applied to.
+      replies:
+        type: array
+        description: The reply of the updates. This maps 1:1 with the updates, although replies to some requests may be empty
+        items:
+          type: object
+      updatedSpreadsheet:
+        type: object
+        description: The spreadsheet after updates were applied. This is only set if [BatchUpdateSpreadsheetRequest.include_spreadsheet_in_response] is true
+    required:
+      - spreadsheetId
+      - replies
+      - updatedSpreadsheet
+  Error:
+    title: error
+    required:
+    - type
+    properties:
+      type:
+        type: string
+        description: The type of error returned. Can be api_connection_error, api_error, authentication_error, card_error, invalid_request_error, or rate_limit_error.
+      message:
+        type: string
+        description: A human-readable message providing more details about the error. For card errors, these messages can be shown to your users.
+      code:
+        type: string
+        description: For card errors, a short string from amongst those listed on the right describing the kind of card error that occurred.
+      param:
+        type: string
+        description: The parameter the error relates to if the error is parameter-specific. You can use this to display a message near the correct form field, for example.
+  
+paths:
+  /{spreadsheetId}:
+    parameters:
+    - name: batchUpdate
+      in: body
+      schema:
+        $ref: '#/definitions/BatchUpdate'
+    - name: spreadsheetId
+      type: string
+      in: path
+      required: true
+    post:
+      summary: Creates new Batch update job
+      operationId: batchOSTSubmissions
+      description: Converts incoming data into individual addendums or updates to a given spreadsheet
+      produces:
+      - application/json
+      responses:
+        200:
+          description: item created
+          schema:
+            $ref: "#/definitions/BatchUpdateResponse"
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        402:
+          description: Request Failed
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Error'
+        409:
+          description: Conflict
+          schema:
+            $ref: '#/definitions/Error'
+        429:
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/Error'
+        502:
+          description: Server Error
+          schema:
+            $ref: '#/definitions/Error'
+        503:
+          description: Server Error
+          schema:
+            $ref: '#/definitions/Error'
+        504:
+          description: Server Error
+          schema:
+            $ref: '#/definitions/Error'
+x-azure-api-id: 'sh-1510446550043'
